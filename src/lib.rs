@@ -43,7 +43,7 @@ pub struct Request {
 impl Request {
     pub fn create(method: Method) -> Request {
         Request {
-            version: 0,
+            version: 1,
             method,
             content_type: ContentType::None,
             content: vec![],
@@ -87,7 +87,8 @@ pub enum ResponseCode {
     BadRequest, // Request is malformed.
     Unauthorized, // You are not authorized to view the content
     NotFound, // Server could not find the requested content.
-    
+    TooManyRequests, // Server has received too many requests from this client
+    InternalServerError, // Server has encountered an error
 }
 
 #[derive(Debug,Clone, Serialize, Deserialize)]
@@ -100,7 +101,7 @@ pub struct Response {
 impl Response {
     pub fn create(code: ResponseCode) -> Response {
         Response {
-            version: 0,
+            version: 1,
             code,
             content_type: ContentType::None,
             content: vec![],
