@@ -1,6 +1,6 @@
 [package]
 name = "adtp" # Alula's Data Transfer Protocol
-version = "0A.2.0"
+version = "0.2.0"
 edition = "2024"
 description = "Alula's Data Transfer Protocol"
 license = "MPL-2.0"
