@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>ADTPS Handshake</title>
+        <link rel="stylesheet" href="css/style.css"/>
+        <link rel="stylesheet" href="https://dev.prismjs.com/themes/prism-okaidia.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-json.min.js"></script>
+    </head>
+    <body>
+        <section class="hero is-primary">
+            <div class="hero-body is-primary">
+                <h1 class="title is-1">The ADTPS Handshake</h1>
+                <h2 class="subtitle is-2">And how to secure your ADTP connections.</h2>
+            </div>
+        </section>
+        <section class="section">
+            <div class="content">
+                ADTPS is a unified system for securing ADTP Connections, similar to HTTPS.
+                It utilizes RSA to ensure that even if an attacker is listening from the moment a connection opens, the connection remains only readable by the server and client.
+                <h3>Step 1 (Client->Server)</h3>
+                <pre>
+                    <code class="language-json">
+                        {
+                            "version": "ADTP/2.0",
+                            "method": "read",
+                            "headers": {
+                                "request-content-type": "text/plain",
+                            },
+                            "uri": "/ADTPS/server-public-key",
+                            "content": ""
+                        }
+                    </code>
+                </pre>
+                This requests that the server returns its RSA public key.
+                Next, the server responds with an RSA public key.
+                <h3>Step 1 (Server->Client)</h3>
+                <pre>
+                    <code class="language-json">
+                        {
+                            "version": "ADTP/2.0",
+                            "status": "ok",
+                            "headers": {
+                                "content-type": "text/plain",
+                            },
+                            "content": "[SERVER PUBLIC KEY]"
+                        }
+                    </code>
+                </pre>
+                Next, the client sends its RSA public key.
+                <h3>Step 2 (Client->Server)</h3>
+                <pre>
+                    <code class="language-json">
+                        {
+                            "version": "ADTP/2.0",
+                            "method": "GET",
+                            "headers": {
+                                "content-type": "text/plain",
+                            },
+                            "uri": "/ADTPS/client-public-key",
+                            "content": "[CLIENT PUBLIC KEY]"
+                        }
+                    </code>
+                </pre>
+                Now, with public keys exchanged, the server responds with an ok status.
+                Next, the client generates an AES-GCM-256 Key. It encrypts this with the server's public key and sends it to the server.
+                From this point on, all content fields are encrypted with the AES-GCM-256 key and a randomly generated nonce. The nonce is encrypted with the server's public key if being sent from the client, and the clients public key if being sent from the server. It is then sent as a header.
+                <code class="language-json">"headers": { "nonce": "[ENCRYPTED NONCE]" }</code>
+                Now your connection is encrypted!
+            </div>
+        </section>
+    </body>
+</html>
