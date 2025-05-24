@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>ADTP 2.0</title>
+        <link rel="stylesheet" href="css/style.css"/>
+        <link rel="stylesheet" href="https://dev.prismjs.com/themes/prism-okaidia.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-json.min.js"></script>
+    </head>
+    <body>
+        <section class="hero is-primary">
+            <div class="hero-body">
+                <h1 class="title is-1">The ADTP 2.0 Protocol</h1>
+            </div>
+        </section>
+        <section class="section">
+            <div class="content">
+                    ADTP is a protocol for transferring data over a TCP connection, similar to HTTP. It uses a Request/Response model, and data is structured with json transferred in UTF-8. Here is an example of an ADTP 2.0 request.
+                    <br>
+                    <pre>
+                        <code class="language-json">
+                            {
+                                "version": "ADTP/2.0",
+                                "method": "check",
+                                "headers": {
+                                "request-content-type": "none"
+                                },
+                                "uri": "/",
+                                "content": ""
+                            }
+                        </code>
+                    </pre>
+                    The version field is always set to ADTP/2.0 for ADTP 2.0.
+                    <h2 class="title">The method field</h2>
+                    The method field can have the following values:
+                    <ul>
+                        <li>check</li>
+                        <li>read</li>
+                        <li>create</li>
+                        <li>update</li>
+                        <li>append</li>
+                        <li>destroy</li>
+                        <li>auth</li>
+                    </ul>
+                    <br>
+                    <h3 class="subtitle">The check method</h3>
+                    The check method is used to check if data exists on the server at the location specified in the uri field. If the uri field is "/", then it acts as a general server health check. The server may return a sitemap in json for the client to use.
+                    <h3 class="subtitle">The read method</h3>
+                    The read method is used to get data from the server at the location specified in the uri field. A json object in the content field may be used for additional specificity.
+                    <h3 class="subtitle">The create method</h3>
+                    The create method is used to create data on the server that does not exist at the location specified in the uri field. The content field will typically contain the data being created.
+                    <h3 class="subtitle">The update method</h3>
+                    The update method is used to update data on the server by replacing existing data at the location specified in the uri field. The content field will typically contain the data being created.
+                    <h3 class="subtitle">The append method</h3>
+                    The append method is used to update data on the server by modifying existing data at the location specified in the uri field. The content field will typically contain the data being created.
+                    <h3 class="subtitle">The destroy method</h3>
+                    The destroy method is used to delete data from the server at the location specified in the uri field.
+                    <h3 class="subtitle">The auth method</h3>
+                    The auth method is used to authenticate the server. User credentials are typically stored in the content field, preferably as a json object.
+                    <br>
+                    <br>
+                    <strong>Note:</strong> The auth method is intentionally non-standardized and left to server implementations.
+                    Each server may define its own authentication mechanism, such as username/password, bearer tokens, or cryptographic key exchanges.
+                    Clients must follow the server’s documentation or any protocol negotiation to authenticate properly.
+
+                    <h2 class="title">The headers field</h2>
+                    The headers field is a dictionary of header fields. Each header field is represented by a key-value pair.
+                    For example, the request-content-type header field tells the server what type of data the client expects/wants to receive.
+                    While a header does not need to be standard, there are several standardized headers.
+                    <ul>
+                        <li>request-content-type: a colon-seperated list of <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">MIME Types</a> that the client wants to receive/expects. 'none' can also be used as a content-type, while * represents any.</li>
+                        <li>request-language: a colon seperated list of <a href="https://datatracker.ietf.org/doc/html/rfc5646">Language Tags</a> that the client wants to receive/expects. * represents any.</li>
+                        <li>cookie: a colon seperated list of cookies that the server has set previously. cookies are represented as key=value. Equal signs and colons must be backslash escaped.</li>
+                        <li>content-type: the type of content being sent by the client</li>
+                        <li>content-length: an integer that represents the length of the content field.</li>
+                        <li>content-language: a <a href="https://datatracker.ietf.org/doc/html/rfc5646">Language Tags</a> that represents the language of the content being sent. * represents any and 'none' represents no language</li>
+                        <li>range: an integer-integer pair that represents the range of the requested content that should be returned, the first integer being the start, and the second integer being the end</li>
+                        <li>agent: a string meant to convey the application type, operating system, vendor, and version of the client</li>
+                    </ul>
+                    <h2 class="subtitle">The uri field</h2>
+                    The uri field is a standard <a href="https://datatracker.ietf.org/doc/html/rfc3986">URI</a>. It is used to specify the location of data.
+                    <h2 class="subtitle">The content field</h2>
+                    The content field is used to send data.
+
+                    <br>
+                    <br>
+
+                    Here is an example of an ADTP 2.0 response.
+                    <pre>
+                        <code class="language-json">
+                            {
+                                "version": "ADTP/2.0",
+                                "status": "ok",
+                                "headers": {
+                                    "content-type": "none"
+                                },
+                                "content": ""
+                            }
+                        </code>
+                    </pre>
+                    The version field is always set to ADTP/2.0 for ADTP 2.0.
+                    <h2 class="title">The status field</h2>
+                    The status field can have the following values:
+                    <ul>
+                        <li>switch-protocols: The server wants to switch protocols. The content field should contain the protocol to switch to</li>
+                        <li>ok: The request was processed successfully.</li>
+                        <li>pending: The request is pending. You will receive another response when the request is complete.</li>
+                        <li>redirect: The content does not exist at this location. Check content for its new location.</li>
+                        <li>denied: The request was denied.</li>
+                        <li>bad-request: The request was malformed or incorrect in some way.</li>
+                        <li>unauthorized: The client is not authorized to perform the requested action.</li>
+                        <li>not-found: The referenced content was not found.</li>
+                        <li>too-many-requests: Too many requests have been received from the client. Please try again later.</li>
+                        <li>internal-error: An internal server error occurred.</li>
+                    </ul>
+                    <h2 class="title">The headers field</h2>
+                    The headers field is a dictionary of header fields. Each header field is represented by a key-value pair.
+                    For example, the content-type header field tells the client what type of data the server is sending.
+                    While a header does not need to be standard, there are several standardized headers.
+                    <ul>
+                        <li>request-content-type: a colon seperated list of <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">MIME Types</a> that the server wants to receive/expects. 'none' can also be used as a content-type, while * represents any.</li>
+                        <li>request-language: a colon seperated list of <a href="https://datatracker.ietf.org/doc/html/rfc5646">Language Tags</a> that the server wants to receive/expects. * represents any.</li>
+                        <li>set-cookies: a colon seperated list of cookies that the server wants the client to save. cookies are represented as key=value. Equal signs and colons must be backslash escaped.</li>
+                        <li>content-length: an integer that represents the length of the content field.</li>
+                        <li>content-language: a <a href="https://datatracker.ietf.org/doc/html/rfc5646">Language Tags</a> that represents the language of the content being sent. * represents any and 'none' represents no language</li>
+                        <li>range: an integer-integer pair that represents the range of the requested content that has been returned, the first integer being the start, and the second integer being the end</li>
+                        <li>agent: a string meant to convey the application type, operating system, vendor, and version of the server</li>
+                    </ul>
+                    <h2 class="subtitle">The content field</h2>
+                The content field is used to send data.
+            </div>
+        </section>
+    </body>
+</html>
