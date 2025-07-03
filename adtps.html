@@ -65,8 +65,8 @@
                 </pre>
                 Now, with public keys exchanged, the server responds with an ok status.
                 Next, the client generates an AES-GCM-256 Key. It encrypts this with the server's public key and sends it to the server.
-                From this point on, all content fields are encrypted with the AES-GCM-256 key and a randomly generated nonce. The nonce is encrypted with the server's public key if being sent from the client, and the clients public key if being sent from the server. It is then sent as a header.
-                <code class="language-json">"headers": { "nonce": "[ENCRYPTED NONCE]" }</code>
+                From this point on, all content fields are encrypted with the AES-GCM-256 key, an authentication tag, and a randomly generated nonce. The nonce is encrypted with the server's public key if being sent from the client, and the clients public key if being sent from the server. It is then sent as a header.
+                <code class="language-json">"headers": { "nonce": "[ENCRYPTED NONCE]", "tag": "[BASE64 TAG]" }</code>
                 Now your connection is encrypted!
             </div>
         </section>
